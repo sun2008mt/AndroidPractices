@@ -6,24 +6,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.whu.androidpractices.MainActivity">
+    tools:context="com.whu.androidpractices.IntentActivity">
 
     <Button
-        android:id="@+id/btn_shared_preference"
+        android:id="@+id/btn_send_data_to_other_apps"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="测试sp"/>
+        android:text="发送数据给其他app响应"/>
 
     <Button
-        android:id="@+id/btn_file_storage"
+        android:id="@+id/btn_send_multiple"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="测试文件存储"/>
-
-    <Button
-        android:id="@+id/btn_intent_test"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="测试Intent"/>
+        android:text="发送多块内容"/>
 
 </LinearLayout>
