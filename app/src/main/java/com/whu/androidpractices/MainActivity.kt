@@ -17,5 +17,11 @@ class MainActivity : AppCompatActivity() {
             intent = Intent(this@MainActivity, SharedPreferenceActivity::class.java)
             startActivity(intent)
         }
+
+        btn_file_storage.setOnClickListener {
+            intent = Intent(this@MainActivity, StorageActivity::class.java)
+            startActivity(intent)
+        }
+
     }
 }

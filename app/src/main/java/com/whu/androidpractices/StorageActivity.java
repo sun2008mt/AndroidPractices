@@ -1,9 +1,12 @@
 package com.whu.androidpractices;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,6 +41,8 @@ public class StorageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_storage);
 
+        TextView txtStorageContent = findViewById(R.id.txt_storage_content);
+
         //获取app的internal目录
         File internalStorage = getFilesDir();
 
@@ -69,22 +74,31 @@ public class StorageActivity extends AppCompatActivity {
         //external storage可能是不可用的，如SD卡被拔出等情况，因而需要再访问之前对其可用性进行检查
         String state = Environment.getExternalStorageState();
 
+        long externalTotalSpace = 0, externalFreeSpace = 0;
+        String externalAbsolutePath = "";
+        String[] externalList = {};
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             //external可用
+            //external storage目录下存储的图片类型的文件(public，app被卸载也不会被删除)
+            File file1 = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "test");
+
+            //private，app被卸载系统会自动删除
+            File file2 = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "test");
+
+            //getExternalFilesDir()方法创建的目录会在app被卸载时被系统删除，而getExternalStoragePublicDirectory()方法则不会
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                File externalStorageDirectory = Environment.getExternalStorageDirectory();
+                externalAbsolutePath = externalStorageDirectory.getAbsolutePath();
+                externalTotalSpace = externalStorageDirectory.getTotalSpace();
+                externalFreeSpace = externalStorageDirectory.getFreeSpace();
+                externalList = externalStorageDirectory.list();
+            }
 
         } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)){
             //external可用但只读
         } else {
             //external不可用
         }
-
-        //external storage目录下存储的图片类型的文件(public，app被卸载也不会被删除)
-        File file1 = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), "test");
-
-        //private，app被卸载系统会自动删除
-        File file2 = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "test");
-
-        //getExternalFilesDir()方法创建的目录会在app被卸载时被系统删除，而getExternalStoragePublicDirectory()方法则不会
         
         //查询剩余空间
         long freeSpace = internalStorage.getFreeSpace();
@@ -95,5 +109,44 @@ public class StorageActivity extends AppCompatActivity {
 
         //如果文件保存在internal storage中
         deleteFile("test");
+
+        String[] list = internalStorage.list();
+        String absolutePath = internalStorage.getAbsolutePath();
+
+        findViewById(R.id.btn_file_list).setOnClickListener(v -> {
+            txtStorageContent.setText(getFileList(list));
+        });
+
+        findViewById(R.id.btn_internal_path).setOnClickListener(v -> {
+            txtStorageContent.setText("绝对路径：" + absolutePath + "\n"
+                    + "internal剩余空间: " + freeSpace / 1024 / 1024 / 1024 + "G" + "\n"
+                    + "internal总共空间：" + totalSpace / 1024 / 1024 / 1024 + "G" + "\n");
+        });
+
+        String[] finalExternalList = externalList;
+        findViewById(R.id.btn_file_list_external).setOnClickListener(v -> {
+            txtStorageContent.setText(getFileList(finalExternalList));
+        });
+
+        String finalExternalAbsolutePath = externalAbsolutePath;
+        long finalExternalFreeSpace = externalFreeSpace;
+        long finalExternalTotalSpace = externalTotalSpace;
+        findViewById(R.id.btn_external_path).setOnClickListener(v -> {
+            txtStorageContent.setText("绝对路径：" + finalExternalAbsolutePath + "\n"
+                    + "external剩余空间: " + finalExternalFreeSpace / 1024 / 1024 / 1024 + "G" + "\n"
+                    + "external总共空间：" + finalExternalTotalSpace / 1024 / 1024 / 1024 + "G" + "\n");
+        });
+    }
+
+    private String getFileList(String[] list) {
+
+        StringBuilder sb = new StringBuilder();
+        if (list != null && list.length > 0) {
+            for (String info: list) {
+                sb.append(info + "\n");
+            }
+        }
+
+        return sb.toString();
     }
 }
